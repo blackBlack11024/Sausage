@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>打香腸遊戲</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            background-color: #fce4ec;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* 防止手機點擊時出現藍色高光 */
+            -webkit-tap-highlight-color: transparent; 
+        }
+        h1 { 
+            color: #d32f2f; 
+            margin-bottom: 10px;
+        }
+        .stats {
+            background: #fff;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            width: 90%;
+            max-width: 350px;
+        }
+        .stats p { 
+            margin: 10px 0; 
+            font-size: 1.3em; 
+            font-weight: bold; 
+            color: #333;
+        }
+        .dice-container {
+            display: flex;
+            gap: 25px;
+            margin: 20px 0;
+        }
+        .die {
+            width: 90px;
+            height: 90px;
+            background: white;
+            border: 3px solid #333;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3em;
+            font-weight: bold;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.2);
+            color: #111;
+        }
+        button {
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.4em;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+            transition: transform 0.1s, background-color 0.2s;
+            width: 90%;
+            max-width: 350px;
+            margin-bottom: 20px;
+        }
+        button:active {
+            transform: scale(0.95);
+            background-color: #b71c1c;
+        }
+        #result {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #555;
+            min-height: 70px;
+            padding: 0 10px;
+        }
+        .highlight {
+            color: #d32f2f;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎲 打香腸攤 🌭</h1>
+
+    <div class="stats">
+        <p>累積花費：<span id="cost">0</span> 元</p>
+        <p>贏得香腸：<span id="sausages" style="color: #2e7d32;">0</span> 根</p>
+    </div>
+
+    <div class="dice-container">
+        <div class="die" id="die1">?</div>
+        <div class="die" id="die2">?</div>
+    </div>
+
+    <button onclick="rollDice()">付 40 元擲骰子</button>
+
+    <div id="result">準備好了嗎？試試手氣！</div>
+
+    <script>
+        let totalCost = 0;
+        let totalSausages = 0;
+
+        function rollDice() {
+            // 每次點擊扣 40 元
+            totalCost += 40;
+            document.getElementById('cost').innerText = totalCost;
+
+            // 產生 1 到 6 的隨機數
+            const d1 = Math.floor(Math.random() * 6) + 1;
+            const d2 = Math.floor(Math.random() * 6) + 1;
+            const sum = d1 + d2;
+
+            // 更新骰子畫面
+            document.getElementById('die1').innerText = d1;
+            document.getElementById('die2').innerText = d2;
+
+            // 根據規則判斷香腸數量
+            let won = 0;
+            if (sum === 2 || sum === 12) {
+                won = 4;
+            } else if (sum === 3 || sum === 11) {
+                won = 3;
+            } else if (sum === 4 || sum === 10) {
+                won = 2;
+            } else if (sum === 5 || sum === 9) {
+                won = 1;
+            } else {
+                // 6, 7, 8
+                won = 0; 
+            }
+
+            // 更新總香腸數
+            totalSausages += won;
+            document.getElementById('sausages').innerText = totalSausages;
+
+            // 顯示結果文字
+            const resultDiv = document.getElementById('result');
+            if (won > 0) {
+                resultDiv.innerHTML = `點數和：<span class="highlight">${sum}</span><br>恭喜！贏得 <span style="color: #2e7d32;">${won}</span> 根香腸 🌭`;
+            } else {
+                resultDiv.innerHTML = `點數和：<span class="highlight">${sum}</span><br>貢龜！沒半根，再來一把！`;
+            }
+        }
+    </script>
+</body>
+</html>
