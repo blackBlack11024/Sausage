@@ -301,8 +301,8 @@
                     resultDiv.innerHTML = `點數和：<span class="highlight">${sum}</span><br>讚啦！贏得 <span style="color: #FF0000; font-size: 1.2em;">${won}</span> 根香腸！`;
                     
                     // --- 修改：在這裡觸發爆炸特效 ---
-                    SauCnt = won^4
-                    spawnSausages(SauCnt); 
+                   
+                    spawnSausages(won); 
 
                 } else {
                     resultDiv.innerHTML = `點數和：<span class="highlight">${sum}</span><br>槓龜！沒半根！`;
