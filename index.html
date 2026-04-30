@@ -3,152 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>打香腸遊戲</title>
+    <title>正宗台味打香腸</title>
     <style>
+        /* 華國美學靈魂：標楷體與新細明體，高飽和度底色 */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "標楷體", "BiauKai", "新細明體", "PMingLiU", serif;
             text-align: center;
-            background-color: #fce4ec;
+            background-color: #0000FF; /* 正藍色底 */
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* 防止手機點擊時出現藍色高光 */
             -webkit-tap-highlight-color: transparent; 
         }
+        .marquee-box {
+            width: 100%;
+            background-color: #FF0000; /* 正紅色 */
+            color: #FFFF00; /* 正黃色 */
+            font-size: 1.5em;
+            font-weight: bold;
+            padding: 5px 0;
+            border: 3px solid #FFFF00;
+            margin-bottom: 15px;
+        }
         h1 { 
-            color: #d32f2f; 
-            margin-bottom: 10px;
+            color: #FFFF00; 
+            text-shadow: 2px 2px 0px #FF0000, -2px -2px 0px #FF0000, 2px -2px 0px #FF0000, -2px 2px 0px #FF0000;
+            font-size: 2.5em;
+            margin: 10px 0;
+            letter-spacing: 5px;
         }
         .stats {
-            background: #fff;
+            background: #FFFFFF;
             padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
+            border: 5px double #0000FF;
+            margin-bottom: 20px;
             width: 90%;
             max-width: 350px;
+            box-shadow: 5px 5px 0px #FF0000; /* 硬派陰影 */
         }
         .stats p { 
             margin: 10px 0; 
-            font-size: 1.3em; 
+            font-size: 1.5em; 
             font-weight: bold; 
-            color: #333;
+            color: #000000;
         }
         .dice-container {
             display: flex;
             gap: 25px;
-            margin: 20px 0;
+            margin: 15px 0;
         }
         .die {
             width: 90px;
             height: 90px;
-            background: white;
-            border: 3px solid #333;
-            border-radius: 15px;
+            background: #FFFFFF;
+            border: 4px solid #000000;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 3em;
+            font-size: 4em;
             font-weight: bold;
-            box-shadow: 3px 3px 8px rgba(0,0,0,0.2);
-            color: #111;
+            color: #FF0000; /* 紅色點數 */
+            box-shadow: 4px 4px 0px #000000;
         }
-        button {
-            background-color: #d32f2f;
-            color: white;
-            border: none;
-            padding: 18px 40px;
-            font-size: 1.4em;
-            font-weight: bold;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-            transition: transform 0.1s, background-color 0.2s;
+        /* 骰子轉動時的搖晃動畫 */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            25% { transform: translate(-1px, -2px) rotate(-5deg); }
+            50% { transform: translate(-3px, 0px) rotate(5deg); }
+            75% { transform: translate(2px, 2px) rotate(-5deg); }
+            100% { transform: translate(1px, -1px) rotate(0deg); }
+        }
+        .rolling {
+            animation: shake 0.2s infinite;
+        }
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
             width: 90%;
             max-width: 350px;
             margin-bottom: 20px;
         }
+        button {
+            font-family: "標楷體", "BiauKai", serif;
+            color: #FFFFFF;
+            border: 4px outset #FFFFFF; /* 古早味立體按鈕 */
+            padding: 15px;
+            font-size: 1.8em;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
         button:active {
-            transform: scale(0.95);
-            background-color: #b71c1c;
+            border: 4px inset #FFFFFF;
+        }
+        button:disabled {
+            filter: grayscale(100%);
+            cursor: not-allowed;
+        }
+        #rollBtn {
+            background-color: #FF0000;
+        }
+        #addMoneyBtn {
+            background-color: #008000; /* 正綠色 */
+        }
+        #result-box {
+            background-color: #FFFF00;
+            border: 4px solid #FF0000;
+            width: 90%;
+            max-width: 350px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            box-shadow: 4px 4px 0px #000000;
         }
         #result {
-            font-size: 1.4em;
+            font-size: 1.6em;
             font-weight: bold;
-            color: #555;
-            min-height: 70px;
-            padding: 0 10px;
+            color: #0000FF;
+            margin: 0;
         }
         .highlight {
-            color: #d32f2f;
-            font-size: 1.2em;
+            color: #FF0000;
+            font-size: 1.5em;
         }
     </style>
 </head>
 <body>
 
-    <h1>🎲 打香腸攤 🌭</h1>
+    <div class="marquee-box">
+        <marquee scrollamount="10">🎉 歡迎光臨正宗台味打香腸攤！保證新鮮！童叟無欺！ 🎉</marquee>
+    </div>
+
+    <h1>打香腸</h1>
 
     <div class="stats">
-        <p>累積花費：<span id="cost">0</span> 元</p>
-        <p>贏得香腸：<span id="sausages" style="color: #2e7d32;">0</span> 根</p>
+        <p>口袋現金：<span id="money" style="color: #FF0000;">1000</span> 元</p>
+        <p>贏得香腸：<span id="sausages" style="color: #008000;">0</span> 根</p>
     </div>
 
     <div class="dice-container">
-        <div class="die" id="die1">?</div>
-        <div class="die" id="die2">?</div>
+        <div class="die" id="die1">骰</div>
+        <div class="die" id="die2">子</div>
     </div>
 
-    <button onclick="rollDice()">付 40 元擲骰子</button>
+    <div class="btn-container">
+        <button id="rollBtn" onclick="rollDice()">付 40 元拚了！</button>
+        <button id="addMoneyBtn" onclick="addMoney()">找阿嬤拿 1000 元</button>
+    </div>
 
-    <div id="result">準備好了嗎？試試手氣！</div>
+    <div id="result-box">
+        <div id="result">準備好了嗎？<br>放手一搏！</div>
+    </div>
 
     <script>
-        let totalCost = 0;
+        let currentMoney = 1000;
         let totalSausages = 0;
+        let isRolling = false; // 用來防止連點
+
+        function addMoney() {
+            if (isRolling) return; // 轉動時不能補錢
+            currentMoney += 1000;
+            document.getElementById('money').innerText = currentMoney;
+            document.getElementById('result').innerHTML = "阿嬤贊助了 1000 元！<br>繼續拚！";
+        }
 
         function rollDice() {
-            // 每次點擊扣 40 元
-            totalCost += 40;
-            document.getElementById('cost').innerText = totalCost;
-
-            // 產生 1 到 6 的隨機數
-            const d1 = Math.floor(Math.random() * 6) + 1;
-            const d2 = Math.floor(Math.random() * 6) + 1;
-            const sum = d1 + d2;
-
-            // 更新骰子畫面
-            document.getElementById('die1').innerText = d1;
-            document.getElementById('die2').innerText = d2;
-
-            // 根據規則判斷香腸數量
-            let won = 0;
-            if (sum === 2 || sum === 12) {
-                won = 4;
-            } else if (sum === 3 || sum === 11) {
-                won = 3;
-            } else if (sum === 4 || sum === 10) {
-                won = 2;
-            } else if (sum === 5 || sum === 9) {
-                won = 1;
-            } else {
-                // 6, 7, 8
-                won = 0; 
+            // 檢查狀態與餘額
+            if (isRolling) return;
+            if (currentMoney < 40) {
+                alert("少年耶，你錢不夠啦！先去找阿嬤拿錢！");
+                return;
             }
 
-            // 更新總香腸數
-            totalSausages += won;
-            document.getElementById('sausages').innerText = totalSausages;
+            // 扣錢與設定狀態
+            isRolling = true;
+            currentMoney -= 40;
+            document.getElementById('money').innerText = currentMoney;
+            
+            // 鎖定按鈕與更新文字
+            document.getElementById('rollBtn').disabled = true;
+            document.getElementById('addMoneyBtn').disabled = true;
+            document.getElementById('result').innerHTML = "十八啦！<br>轉動中...";
 
-            // 顯示結果文字
-            const resultDiv = document.getElementById('result');
-            if (won > 0) {
-                resultDiv.innerHTML = `點數和：<span class="highlight">${sum}</span><br>恭喜！贏得 <span style="color: #2e7d32;">${won}</span> 根香腸 🌭`;
-            } else {
-                resultDiv.innerHTML = `點數和：<span class="highlight">${sum}</span><br>貢龜！沒半根，再來一把！`;
-            }
+            const die1El = document.getElementById('die1');
+            const die2El = document.getElementById('die2');
+            
+            // 加上 CSS 搖晃動畫
+            die1El.classList.add('rolling');
+            die2El.classList.add('rolling');
+
+            // 每 100 毫秒變換一次骰子數字（製造轉動感）
+            let rollInterval = setInterval(() => {
+                die1El.innerText = Math.floor(Math.random() * 6) + 1;
+                die2El.innerText = Math.floor(Math.random() * 6) + 1;
+            }, 100);
+
+            // 2 秒後停止轉動並計算結果
+            setTimeout(() => {
+                clearInterval(rollInterval);
+                die1El.classList.remove('rolling');
+                die2El.classList.remove('rolling');
+
+                // 產生最終點數
+                const d1 = Math.floor(Math.random() * 6) + 1;
+                const d2 = Math.floor(Math.random() * 6) + 1;
+                const sum = d1 + d2;
+
+                die1El.innerText = d1;
+                die2El.innerText = d2;
+
+                // 根據規則判斷香腸數量
+                let won = 0;
+                if (sum === 2 || sum === 12) won = 4;
+                else if (sum === 3 || sum === 11) won = 3;
+                else if (sum === 4 || sum === 10) won = 2;
+                else if (sum === 5 || sum === 9) won = 1;
+                else won = 0; 
+
+                // 更新香腸數
+                totalSausages += won;
+                document.getElementById('sausages').innerText = totalSausages;
+
+                // 顯示結果
+                const resultDiv = document.getElementById('result');
+                if (won > 0) {
+                    resultDiv.innerHTML = `點數和：<span class="highlight">${sum}</span><br>讚啦！贏得 <span style="color: #FF0000; font-size: 1.2em;">${won}</span> 根香腸！`;
+                } else {
+                    resultDiv.innerHTML = `點數和：<span class="highlight">${sum}</span><br>槓龜！沒半根！`;
+                }
+
+                // 恢復按鈕狀態
+                isRolling = false;
+                document.getElementById('rollBtn').disabled = false;
+                document.getElementById('addMoneyBtn').disabled = false;
+            }, 2000); // 2000 毫秒 = 2 秒
         }
     </script>
 </body>
