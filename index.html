@@ -16,6 +16,7 @@
             flex-direction: column;
             align-items: center;
             -webkit-tap-highlight-color: transparent; 
+            overflow-x: hidden; /* 防止特效造成橫向滾動條 */
         }
         .marquee-box {
             width: 100%;
@@ -26,6 +27,7 @@
             padding: 5px 0;
             border: 3px solid #FFFF00;
             margin-bottom: 15px;
+            box-sizing: border-box;
         }
         h1 { 
             color: #FFFF00; 
@@ -41,7 +43,7 @@
             margin-bottom: 20px;
             width: 90%;
             max-width: 350px;
-            box-shadow: 5px 5px 0px #FF0000; /* 硬派陰影 */
+            box-shadow: 5px 5px 0px #FF0000;
         }
         .stats p { 
             margin: 10px 0; 
@@ -64,10 +66,10 @@
             align-items: center;
             font-size: 4em;
             font-weight: bold;
-            color: #FF0000; /* 紅色點數 */
+            color: #FF0000;
             box-shadow: 4px 4px 0px #000000;
         }
-        /* 骰子轉動時的搖晃動畫 */
+        /* 骰子搖晃動畫 */
         @keyframes shake {
             0% { transform: translate(1px, 1px) rotate(0deg); }
             25% { transform: translate(-1px, -2px) rotate(-5deg); }
@@ -89,7 +91,7 @@
         button {
             font-family: "標楷體", "BiauKai", serif;
             color: #FFFFFF;
-            border: 4px outset #FFFFFF; /* 古早味立體按鈕 */
+            border: 4px outset #FFFFFF;
             padding: 15px;
             font-size: 1.8em;
             font-weight: bold;
@@ -103,12 +105,8 @@
             filter: grayscale(100%);
             cursor: not-allowed;
         }
-        #rollBtn {
-            background-color: #FF0000;
-        }
-        #addMoneyBtn {
-            background-color: #008000; /* 正綠色 */
-        }
+        #rollBtn { background-color: #FF0000; }
+        #addMoneyBtn { background-color: #008000; }
         #result-box {
             background-color: #FFFF00;
             border: 4px solid #FF0000;
@@ -120,6 +118,7 @@
             justify-content: center;
             padding: 10px;
             box-shadow: 4px 4px 0px #000000;
+            box-sizing: border-box;
         }
         #result {
             font-size: 1.6em;
@@ -131,12 +130,37 @@
             color: #FF0000;
             font-size: 1.5em;
         }
+
+        /* --- 新增：香腸爆炸特效 CSS --- */
+        .sausage-effect {
+            position: fixed;
+            font-size: 40px; /* 香腸大小 */
+            pointer-events: none; /* 讓點擊穿透特效，不影響操作 */
+            z-index: 9999; /* 確保在最上層 */
+            opacity: 0;
+        }
+
+        /* 爆炸動畫定義 */
+        @keyframes explosion {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1; /* 快速顯現 */
+            }
+            100% {
+                /* 往隨機方向飛散 (由 JS 設定變數) */
+                transform: translate(var(--tx), var(--ty)) rotate(var(--tr));
+                opacity: 0; /* 慢慢消失 */
+            }
+        }
     </style>
 </head>
 <body>
 
     <div class="marquee-box">
-        <marquee scrollamount="10">🎉 歡迎光臨正宗台味打香腸攤！保證新鮮！童叟無欺！ 🎉</marquee>
+        <marquee scrollamount="10">🎉 歡迎光臨正宗台味打香腸攤！十八啦！轉不停！炸香腸！ 🎉</marquee>
     </div>
 
     <h1>打香腸</h1>
@@ -163,29 +187,76 @@
     <script>
         let currentMoney = 1000;
         let totalSausages = 0;
-        let isRolling = false; // 用來防止連點
+        let isRolling = false;
 
         function addMoney() {
-            if (isRolling) return; // 轉動時不能補錢
+            if (isRolling) return;
             currentMoney += 1000;
             document.getElementById('money').innerText = currentMoney;
             document.getElementById('result').innerHTML = "阿嬤贊助了 1000 元！<br>繼續拚！";
+            // 補錢時不炸香腸
+        }
+
+        // --- 新增：觸發香腸爆炸特效的函數 ---
+        function spawnSausages(count) {
+            // 從畫面兩側炸出
+            const sides = ['left', 'right'];
+            const viewWidth = window.innerWidth;
+            const viewHeight = window.innerHeight;
+
+            for (let i = 0; i < count; i++) {
+                const sausage = document.createElement('div');
+                sausage.className = 'sausage-effect';
+                sausage.innerText = '🌭'; // 使用 Emoji
+
+                // 隨機選擇一邊開始
+                const startSide = sides[Math.floor(Math.random() * sides.length)];
+                
+                // 設定初始位置 (畫面中間區域的兩側邊緣)
+                if (startSide === 'left') {
+                    sausage.style.left = '-50px';
+                } else {
+                    sausage.style.right = '-50px';
+                }
+                // 垂直位置在畫面中間 20%~80% 處隨機
+                sausage.style.top = (Math.random() * 60 + 20) + 'vh';
+
+                // 設定飛散的目標隨機變數 (CSS 會讀取)
+                // 往中間飛 (tx)
+                const tx = (startSide === 'left' ? 1 : -1) * (viewWidth * 0.4 + Math.random() * 100);
+                // 向上或向下飛 (ty)
+                const ty = (Math.random() - 0.5) * 200;
+                // 旋轉角度
+                const tr = (Math.random() - 0.5) * 1080 + 'deg'; // 轉很多圈
+
+                sausage.style.setProperty('--tx', tx + 'px');
+                sausage.style.setProperty('--ty', ty + 'px');
+                sausage.style.setProperty('--tr', tr);
+
+                // 設定動畫時間 (隨機 1.5~2.5 秒，製造錯落感)
+                const duration = 1.5 + Math.random() * 1;
+                sausage.style.animation = `explosion ${duration}s ease-out forwards`;
+
+                document.body.appendChild(sausage);
+
+                // 動畫結束後移除元素，防止浪費資源
+                setTimeout(() => {
+                    sausage.remove();
+                }, duration * 1000);
+            }
         }
 
         function rollDice() {
-            // 檢查狀態與餘額
             if (isRolling) return;
             if (currentMoney < 40) {
                 alert("少年耶，你錢不夠啦！先去找阿嬤拿錢！");
                 return;
             }
 
-            // 扣錢與設定狀態
             isRolling = true;
             currentMoney -= 40;
             document.getElementById('money').innerText = currentMoney;
             
-            // 鎖定按鈕與更新文字
             document.getElementById('rollBtn').disabled = true;
             document.getElementById('addMoneyBtn').disabled = true;
             document.getElementById('result').innerHTML = "十八啦！<br>轉動中...";
@@ -193,23 +264,19 @@
             const die1El = document.getElementById('die1');
             const die2El = document.getElementById('die2');
             
-            // 加上 CSS 搖晃動畫
             die1El.classList.add('rolling');
             die2El.classList.add('rolling');
 
-            // 每 100 毫秒變換一次骰子數字（製造轉動感）
             let rollInterval = setInterval(() => {
                 die1El.innerText = Math.floor(Math.random() * 6) + 1;
                 die2El.innerText = Math.floor(Math.random() * 6) + 1;
             }, 100);
 
-            // 2 秒後停止轉動並計算結果
             setTimeout(() => {
                 clearInterval(rollInterval);
                 die1El.classList.remove('rolling');
                 die2El.classList.remove('rolling');
 
-                // 產生最終點數
                 const d1 = Math.floor(Math.random() * 6) + 1;
                 const d2 = Math.floor(Math.random() * 6) + 1;
                 const sum = d1 + d2;
@@ -229,19 +296,21 @@
                 totalSausages += won;
                 document.getElementById('sausages').innerText = totalSausages;
 
-                // 顯示結果
                 const resultDiv = document.getElementById('result');
                 if (won > 0) {
                     resultDiv.innerHTML = `點數和：<span class="highlight">${sum}</span><br>讚啦！贏得 <span style="color: #FF0000; font-size: 1.2em;">${won}</span> 根香腸！`;
+                    
+                    // --- 修改：在這裡觸發爆炸特效 ---
+                    spawnSausages(won); 
+
                 } else {
                     resultDiv.innerHTML = `點數和：<span class="highlight">${sum}</span><br>槓龜！沒半根！`;
                 }
 
-                // 恢復按鈕狀態
                 isRolling = false;
                 document.getElementById('rollBtn').disabled = false;
                 document.getElementById('addMoneyBtn').disabled = false;
-            }, 2000); // 2000 毫秒 = 2 秒
+            }, 2000); 
         }
     </script>
 </body>
